@@ -1,0 +1,124 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-start mb-3">
+    <a href="{% url "index" %}" class="btn btn-outline-primary me-2">New Questions</a>
+    <a href="{% url "hot" %}" class="btn btn-primary">Hot Questions</a>
+</div>
+
+<div class="question-card p-3 mb-3 border rounded">
+    <div class="d-flex align-items-start">
+        <img src="images/user.jpg" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold mb-1"><a href="question.html" class="text-decoration-none text-dark">Why
+                    is my car
+                    engine overheating?</a></h5>
+            <p class="text-muted mb-2">The temperature gauge keeps going up after a few minutes of
+                driving. Could this be due to a faulty radiator or something else?</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary me-1">engine</span>
+                    <span class="badge bg-secondary me-1">cooling</span>
+                    <span class="badge bg-secondary">maintenance</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="question.html" class="text-decoration-none">7 answers</a>
+                    <button class="btn btn-outline-primary btn-sm">👍 15</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="question-card p-3 mb-3 border rounded">
+    <div class="d-flex align-items-start">
+        <img src="images/user.jpg" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold mb-1"><a href="question.html" class="text-decoration-none text-dark">What
+                    causes
+                    uneven tire wear?</a></h5>
+            <p class="text-muted mb-2">My front tires are wearing faster on the inside edges. Is it an
+                alignment issue or suspension problem?</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary me-1">tires</span>
+                    <span class="badge bg-secondary me-1">alignment</span>
+                    <span class="badge bg-secondary">suspension</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="question.html" class="text-decoration-none">4 answers</a>
+                    <button class="btn btn-outline-primary btn-sm">👍 21</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="question-card p-3 mb-3 border rounded">
+    <div class="d-flex align-items-start">
+        <img src="images/user.jpg" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold mb-1"><a href="question.html" class="text-decoration-none text-dark">How
+                    often should
+                    I change my oil?</a></h5>
+            <p class="text-muted mb-2">I drive mostly short distances in the city. Should I follow the
+                10,000 km rule, or change oil more frequently?</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary me-1">oil</span>
+                    <span class="badge bg-secondary me-1">maintenance</span>
+                    <span class="badge bg-secondary">engine</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="question.html" class="text-decoration-none">6 answers</a>
+                    <button class="btn btn-outline-primary btn-sm">👍 32</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="question-card p-3 mb-3 border rounded">
+    <div class="d-flex align-items-start">
+        <img src="images/user.jpg" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold mb-1"><a href="question.html" class="text-decoration-none text-dark">Why
+                    does my car
+                    shake when braking?</a></h5>
+            <p class="text-muted mb-2">When I brake at high speeds, the steering wheel vibrates. Could
+                this be due to warped rotors or something else?</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-secondary me-1">brakes</span>
+                    <span class="badge bg-secondary me-1">vibration</span>
+                    <span class="badge bg-secondary">safety</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="question.html" class="text-decoration-none">8 answers</a>
+                    <button class="btn btn-outline-primary btn-sm">👍 19</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav>
+    <ul class="pagination mt-4">
+        <li class="page-item disabled">
+            <a class="page-link text-secondary bg-light border" href="#">Previous</a>
+        </li>
+        <li class="page-item active" aria-current="page">
+            <a class="page-link text-dark bg-secondary bg-opacity-25 border" href="index.html">1</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link text-secondary bg-light border" href="index.html">2</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link text-secondary bg-light border" href="index.html">3</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link text-secondary bg-light border" href="index.html">Next</a>
+        </li>
+    </ul>
+</nav>
+{% endblock content %}
