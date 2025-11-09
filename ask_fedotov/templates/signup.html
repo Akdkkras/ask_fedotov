@@ -1,0 +1,59 @@
+{% extends "layout/base.html" %}
+
+{% block title %} {{ block.super }} | Sign Up {% endblock title %}
+
+{% block content %}
+
+<div class="signup-form p-4 border rounded bg-light">
+    <h4 class="fw-bold mb-4">Sign Up</h4>
+
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" placeholder="Enter your username">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Username must be between 3 and 20 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter your email">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Please enter a valid email address.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="nickname" class="form-label">Nickname</label>
+        <input type="text" class="form-control" id="nickname" placeholder="Enter your nickname">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Nickname must be between 3 and 20 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter your password">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Password must be at least 8 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat your password">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Passwords do not match.
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="avatar" class="form-label">Upload Avatar</label>
+        <input class="form-control" type="file" id="avatar" accept="image/*">
+        <div class="form-text">Optional. You can upload a profile picture.</div>
+    </div>
+
+    <button class="btn btn-primary">Sign Up</button>
+</div>
+
+{% endblock content %}

@@ -1,12 +1,12 @@
 {% extends "layout/base.html" %}
 
-{% block title %} {{ block.super }} | Hot Questions {% endblock title %}
+{% block title %} {{ block.super }} | {{ current_tag|capfirst }} {% endblock title %}
 
 {% block content %}
 
 <div class="d-flex justify-content-start mb-3">
     <a href="{% url "index" %}" class="btn btn-outline-primary me-2">New Questions</a>
-    <a href="{% url "hot" %}" class="btn btn-primary">Hot Questions</a>
+    <a href="{% url "hot" %}" class="btn btn-outline-primary">Hot Questions</a>
 </div>
 
 {% for question in page_obj.object_list %}

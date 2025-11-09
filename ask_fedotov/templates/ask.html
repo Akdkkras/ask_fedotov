@@ -1,0 +1,36 @@
+{% extends "layout/base.html" %}
+
+{% block title %} {{ block.super }} | Ask {% endblock title %}
+
+{% block content %}
+
+<div class="ask-form p-4 border rounded bg-light">
+    <h4 class="fw-bold mb-4">Ask a Question</h4>
+
+    <div class="mb-3">
+        <label for="questionTitle" class="form-label">Question Title</label>
+        <input type="text" class="form-control" id="questionTitle" placeholder="Enter your question title">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Title must be between 10 and 100 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="questionText" class="form-label">Question Text</label>
+        <textarea class="form-control" id="questionText" rows="8" placeholder="Describe your question in detail..."
+            style="resize: none; overflow-y: auto;"></textarea>
+        <div class="alert alert-danger small mt-2" role="alert">
+            Text must be less than 3000 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="questionTags" class="form-label">Tags</label>
+        <input type="text" class="form-control" id="questionTags" placeholder="Enter tags separated by commas">
+        <div class="form-text">Add relevant tags to help others find your question.</div>
+    </div>
+
+    <button class="btn btn-primary">Post Question</button>
+</div>
+
+{% endblock content %}

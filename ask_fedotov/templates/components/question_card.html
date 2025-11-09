@@ -1,21 +1,22 @@
+{% load static %}
+
 <div class="question-card p-3 mb-3 border rounded">
     <div class="d-flex align-items-start">
-        <img src="images/user.jpg" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <img src="{% static "images/user.jpg" %}" alt="User" width="50" height="50" class="rounded-circle me-3">
         <div class="flex-grow-1">
-            <h5 class="fw-bold mb-1"><a href="question.html" class="text-decoration-none text-dark">Why
-                    is my car
-                    engine overheating?</a></h5>
-            <p class="text-muted mb-2">The temperature gauge keeps going up after a few minutes of
-                driving. Could this be due to a faulty radiator or something else?</p>
+            <h5 class="fw-bold mb-1"><a href="{% url "question_page" question.id %}"
+                    class="text-decoration-none text-dark">{{ question.title }}</a></h5>
+            <p class="text-muted mb-2">{{ question.text }}</p>
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <span class="badge bg-secondary me-1">engine</span>
-                    <span class="badge bg-secondary me-1">cooling</span>
-                    <span class="badge bg-secondary">maintenance</span>
+                    {% for tag in question.tags %}
+                    <span class="badge bg-secondary me-1">{{ tag }}</span>
+                    {% endfor %}
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="question.html" class="text-decoration-none">7 answers</a>
-                    <button class="btn btn-outline-primary btn-sm">👍 15</button>
+                    <a href="{% url "question_page" question.id %}"
+                        class="text-decoration-none">{{ question.answers_number }} answers</a>
+                    <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes_number }}</button>
                 </div>
             </div>
         </div>

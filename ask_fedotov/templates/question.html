@@ -1,0 +1,62 @@
+{% extends "layout/base.html" %}
+
+{% block title %} {{ block.super }} | Question {% endblock title %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="question-detail p-4 mb-4 border rounded shadow-sm bg-light">
+    <div class="d-flex align-items-start">
+        <img src="{% static "images/user.jpg" %}" alt="User" width="60" height="60" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <h3 class="fw-bold mb-2">{{ question.title }}</h3>
+            <p class="text-muted mb-3">{{ question.text }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% for tag in question.tags %}
+                    <a href="{% url "tag" tag %}"
+                        class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ tag }}</a>
+                    {% endfor %}
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes_number }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="answer-form p-4 mb-4 border rounded bg-light">
+    <div class="d-flex align-items-stretch gap-2">
+        <textarea class="form-control flex-grow-1" rows="3" placeholder="Write your answer here..."
+            style="resize: none; overflow-y: auto;"></textarea>
+        <button class="btn btn-outline-primary btn-lg">Post</button>
+    </div>
+</div>
+
+<h5 class="fw-bold mb-3">Answers ({{ question.answers_number }})</h5>
+
+{% for answer in page_obj.object_list %}
+<div class="answer-card p-3 mb-3 border rounded bg-white position-relative">
+    {% if answer.is_verified %}
+    <span class="position-absolute top-0 end-0 translate-middle-y badge bg-success"
+        style="transform: translate(-20%, 50%);">
+        ✓ Verified
+    </span>
+    {% endif %}
+    <div class="d-flex align-items-start">
+        <img src="{% static "images/user.jpg" %}" alt="User" width="50" height="50" class="rounded-circle me-3">
+        <div class="flex-grow-1">
+            <p class="mb-2">{{ answer.text }}</p>
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-outline-primary btn-sm">👍 {{ answer.likes_number }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% include "components/pagination.html" %}
+
+{% endblock content %}

@@ -1,0 +1,50 @@
+{% extends "layout/base.html" %}
+
+{% block title %} {{ block.super }} | Settings {% endblock title %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="settings-form p-4 border rounded bg-light">
+    <h4 class="fw-bold mb-4">Profile Settings</h4>
+
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" value="JohnDoe">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Username must be between 3 and 20 characters.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" value="johndoe@example.com">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Please enter a valid email address.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="nickname" class="form-label">Nickname</label>
+        <input type="text" class="form-control" id="nickname" value="SpeedMaster">
+        <div class="alert alert-danger small mt-2" role="alert">
+            Nickname must be between 3 and 20 characters.
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="avatar" class="form-label">Profile Picture</label>
+        <div class="d-flex align-items-center mb-2">
+            <img src="{% static "images/user.jpg" %}" alt="Current Avatar" width="60" height="60"
+                class="rounded-circle me-3 border">
+            <input class="form-control" type="file" id="avatar" accept="image/*">
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center">
+        <button class="btn btn-primary">Save Changes</button>
+    </div>
+</div>
+
+{% endblock content %}
