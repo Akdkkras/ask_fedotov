@@ -38,23 +38,7 @@
 <h5 class="fw-bold mb-3">Answers ({{ question.answers_number }})</h5>
 
 {% for answer in page_obj.object_list %}
-<div class="answer-card p-3 mb-3 border rounded bg-white position-relative">
-    {% if answer.is_verified %}
-    <span class="position-absolute top-0 end-0 translate-middle-y badge bg-success"
-        style="transform: translate(-20%, 50%);">
-        ✓ Verified
-    </span>
-    {% endif %}
-    <div class="d-flex align-items-start">
-        <img src="{% static "images/user.jpg" %}" alt="User" width="50" height="50" class="rounded-circle me-3">
-        <div class="flex-grow-1">
-            <p class="mb-2">{{ answer.text }}</p>
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-primary btn-sm">👍 {{ answer.likes_number }}</button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "components/answer_card.html" %}
 {% endfor %}
 
 {% include "components/pagination.html" %}
