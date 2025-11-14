@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth.models import User
 
 
@@ -10,8 +11,8 @@ class QuestionManager(models.Manager):
     
     def best(self):
         return self.get_queryset().annotate(
-            likes_count=models.Count('likes')
-        ).order_by('-likes_count', '-created_at')
+                likes_count=Count('likes')
+            ).order_by('-likes_count')
 
 
 # Main models
@@ -37,9 +38,8 @@ class Question(models.Model):
     custom = QuestionManager()
 
 
-
 class Tag(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20, unique=True, default='value_default')
 
     def __str__(self):
         return self.name
@@ -71,4 +71,3 @@ class AnswerLike(models.Model):
     
     class Meta:
         unique_together = ['answer', 'user']
-
