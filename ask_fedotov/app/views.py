@@ -5,68 +5,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import Profile, Question, Answer, Tag, QuestionLike, AnswerLike
 
 
-# tags_pool = [tag.name for tag in Tag.objects.all()]
-
-# questions = Question.objects.all().prefetch_related('tags', 'answers', 'likes')
-# answers = Answer.objects.all().select_related('user').prefetch_related('likes')
-
-# questions_list = [
-#     {
-#         "id": q.id,
-#         "title": q.title,
-#         "text": q.text,
-#         "tags": list(q.tags.values_list('name', flat=True)),
-#         "answers_number": q.answers.count(),
-#         "likes_number": q.likes.count(),
-#     }
-#     for q in questions
-# ]
-
-# answers_list = [
-#     {
-#         "user_id": answer.user.id,
-#         "text": answer.text,
-#         "is_verified": True,
-#         "likes_number": answer.likes.count(),
-#     }
-#     for answer in answers
-# ]
-
-
-def get_tags_pool():
-    return list(Tag.objects.all().values_list("name", flat=True))
-
-def get_questions_list():
-    questions = Question.objects.all().prefetch_related('tags', 'answers', 'likes')
-
-    return [
-        {
-            "id": q.id,
-            "title": q.title,
-            "text": q.text,
-            "tags": list(q.tags.values_list('name', flat=True)),
-            "answers_number": q.answers.count(),
-            "likes_number": q.likes.count(),
-        }
-        for q in questions
-    ]
-
-def get_answers_list():
-    answers = Answer.objects.all().select_related('user').prefetch_related('likes')
-
-    return [
-        {
-            "user_id": answer.user.id,
-            "text": answer.text,
-            "is_verified": True,
-            "likes_number": answer.likes.count(),
-        }
-        for answer in answers
-    ]
-
-def paginate(objects_list, request: HttpRequest, per_page=10):
+def paginate(objects, request: HttpRequest, per_page=10):
     page_num = request.GET.get("page", 1)
-    paginator = Paginator(objects_list, per_page)
+    paginator = Paginator(objects, per_page)
     try:
         page = paginator.page(page_num)
     except (PageNotAnInteger, EmptyPage):
@@ -76,58 +17,74 @@ def paginate(objects_list, request: HttpRequest, per_page=10):
 
 
 def index(request: HttpRequest):
-    tags_pool = get_tags_pool()
-    questions_list = get_questions_list()
-    page_obj = paginate(questions_list, request, 10)
-    return render(request, "index.html", context={"page_obj": page_obj, "tags_pool": tags_pool})
+    # questions = Question.qs.order_by_new() # 33 sql-запроса
+    questions = Question.qs.order_by_new().prefetch_related( # 6 sql-запросов
+        "tags",
+        "answers",
+        "likes",
+    )
+    page_obj = paginate(questions, request, 10)
+    tags = Tag.objects.all()
+    return render(request, "index.html", context={"tags_pool": tags, "page_obj": page_obj})
+    # return render(request, "test.html")
+
 
 def index_hot(request: HttpRequest):
-    tags_pool = get_tags_pool()
-    questions_list = get_questions_list()
-    sorted_questions = sorted(questions_list, key=lambda x: x['likes_number'], reverse=True)
-    page_obj = paginate(sorted_questions, request, 10)
-    return render(request, "index_hot.html", context={"page_obj": page_obj, "tags_pool": tags_pool})
+    questions = Question.qs.order_by_likes().prefetch_related(
+        "tags",
+        "answers",
+        "likes",
+    )
+    page_obj = paginate(questions, request, 10)
+    tags = Tag.objects.all()
+    return render(request, "index_hot.html", context={"tags_pool": tags, "page_obj": page_obj})
 
 
 def index_by_tag(request: HttpRequest, tag):
-    tags_pool = get_tags_pool()
-    questions_list = get_questions_list()
-    filtered_questions = [q for q in questions_list if tag in q["tags"]]
-    page_obj = paginate(filtered_questions, request, 10)
-    return render(
-        request,
-        "index_by_tag.html",
-        context={"page_obj": page_obj, "tags_pool": tags_pool, "current_tag": tag},
+    questions = Question.qs.order_by_new().filter(tags__name=tag).prefetch_related(
+        "tags",
+        "answers",
+        "likes",
     )
+    page_obj = paginate(questions, request, 10)
+    tags = Tag.objects.all()
+    return render(request, "index_by_tag.html", context={"tags_pool": tags, "page_obj": page_obj})
 
 
 def question_page(request: HttpRequest, id):
-    tags_pool = get_tags_pool()
-    questions_list = get_questions_list()
-    answers_list = get_answers_list()
+    question = Question.objects.prefetch_related(
+        "tags",
+        "answers",
+        "likes",
+    ).get(pk=id)
+    answers = question.answers.all().prefetch_related(
+        "likes",
+    )
+    page_obj = paginate(answers, request, 5)
 
-    question = next((q for q in questions_list if q["id"] == id), None)
-    answers_number = question["answers_number"]
-    page_obj = paginate(answers_list[:answers_number], request, 5)
-
+    tags = Tag.objects.all()
     return render(
         request,
         "question.html",
-        context={"page_obj": page_obj, "question": question, "tags_pool": tags_pool},
+        context={"tags_pool": tags, "page_obj": page_obj, "question": question}
     )
 
 
 def login_page(request: HttpRequest):
-    return render(request, "login.html", context={"tags_pool": get_tags_pool()})
+    tags = Tag.objects.all()
+    return render(request, "login.html", context={"tags_pool": tags})
 
 
 def signup_page(request: HttpRequest):
-    return render(request, "signup.html", context={"tags_pool": get_tags_pool()})
+    tags = Tag.objects.all()
+    return render(request, "signup.html", context={"tags_pool": tags})
 
 
 def settings_page(request: HttpRequest):
-    return render(request, "settings.html", context={"tags_pool": get_tags_pool()})
+    tags = Tag.objects.all()
+    return render(request, "settings.html", context={"tags_pool": tags})
 
 
 def ask_page(request: HttpRequest):
-    return render(request, "ask.html", context={"tags_pool": get_tags_pool()})
+    tags = Tag.objects.all()
+    return render(request, "ask.html", context={"tags_pool": tags})

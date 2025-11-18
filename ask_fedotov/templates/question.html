@@ -14,13 +14,13 @@
             <p class="text-muted mb-3">{{ question.text }}</p>
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    {% for tag in question.tags %}
+                    {% for tag in question.tags.all %}
                     <a href="{% url "tag" tag %}"
                         class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ tag }}</a>
                     {% endfor %}
                 </div>
                 <div>
-                    <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes_number }}</button>
+                    <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes.count }}</button>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
     </div>
 </div>
 
-<h5 class="fw-bold mb-3">Answers ({{ question.answers_number }})</h5>
+<h5 class="fw-bold mb-3">Answers ({{ question.answers.count }})</h5>
 
 {% for answer in page_obj.object_list %}
 {% include "components/answer_card.html" %}

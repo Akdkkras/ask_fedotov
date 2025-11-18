@@ -5,14 +5,25 @@ from django.contrib.auth.models import User
 
 # Managers
 
+class QuestionQuerySet(models.QuerySet):
+    def order_by_likes(self):
+        return self.annotate(
+            likes_count=Count('likes', distinct=True)
+        ).order_by('-likes_count')
+
+    def order_by_new(self):
+        return self.order_by('-created_at')
+
+
 class QuestionManager(models.Manager):
-    def new(self):
-        return self.get_queryset().order_by('-created_at')
-    
-    def best(self):
-        return self.get_queryset().annotate(
-                likes_count=Count('likes')
-            ).order_by('-likes_count')
+    def get_queryset(self):
+        return QuestionQuerySet(self.model, using=self._db)
+
+    def order_by_likes(self):
+        return self.get_queryset().order_by_likes()
+
+    def order_by_new(self):
+        return self.get_queryset().order_by_new()
 
 
 # Main models
@@ -35,7 +46,7 @@ class Question(models.Model):
     likes = models.ManyToManyField(Profile, related_name='question_likes', through='QuestionLike')
 
     objects = models.Manager()
-    custom = QuestionManager()
+    qs = QuestionManager()
 
 
 class Tag(models.Model):

@@ -74,7 +74,7 @@ class Command(BaseCommand):
             answer = Answer.objects.create(
                 question=random.choice(questions),
                 text=text,
-                is_correct=False,
+                is_correct=random.choice([True, False]),
                 user=random.choice(users)
             )
 
