@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from .models import Profile, Question, Answer, Tag, QuestionLike, AnswerLike
+from .forms import SignUpForm, LoginForm, AskForm
 
 
 def paginate(objects, request: HttpRequest, per_page=10):
@@ -18,7 +19,7 @@ def paginate(objects, request: HttpRequest, per_page=10):
 
 def index(request: HttpRequest):
     # questions = Question.qs.order_by_new() # 33 sql-запроса
-    questions = Question.qs.order_by_new().prefetch_related( # 6 sql-запросов
+    questions = Question.qs.order_by_new().prefetch_related(  # 6 sql-запросов
         "tags",
         "answers",
         "likes",
@@ -71,20 +72,41 @@ def question_page(request: HttpRequest, id):
 
 
 def login_page(request: HttpRequest):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            return HttpResponse("Done")
+    else:
+        form = LoginForm()
+
     tags = Tag.objects.all()
-    return render(request, "login.html", context={"tags_pool": tags})
+    return render(request, "login.html", context={"tags_pool": tags, "form": form})
 
 
 def signup_page(request: HttpRequest):
+    if request.method == "POST":
+        form = SignUpForm(request.POST, request.FILES)
+        if form.is_valid():
+            return HttpResponse("Done")
+    else:
+        form = SignUpForm()
+
     tags = Tag.objects.all()
-    return render(request, "signup.html", context={"tags_pool": tags})
+    return render(request, "signup.html", context={"tags_pool": tags, "form": form})
+
+
+def ask_page(request: HttpRequest):
+    if request.method == "POST":
+        form = AskForm(request.POST)
+        if form.is_valid():
+            return HttpResponse("Done")
+    else:
+        form = AskForm()
+
+    tags = Tag.objects.all()
+    return render(request, "ask.html", context={"tags_pool": tags, "form": form})
 
 
 def settings_page(request: HttpRequest):
     tags = Tag.objects.all()
     return render(request, "settings.html", context={"tags_pool": tags})
-
-
-def ask_page(request: HttpRequest):
-    tags = Tag.objects.all()
-    return render(request, "ask.html", context={"tags_pool": tags})

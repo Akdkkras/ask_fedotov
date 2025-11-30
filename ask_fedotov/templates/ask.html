@@ -1,36 +1,39 @@
-{% extends "layout/base.html" %}
+{% extends 'layout/base.html' %}
 
-{% block title %} {{ block.super }} | Ask {% endblock title %}
+{% block title %}
+  {{ block.super }} | Ask
+{% endblock %}
 
 {% block content %}
-
-<div class="ask-form p-4 border rounded bg-light">
+  <div class="ask-form p-4 border rounded bg-light">
     <h4 class="fw-bold mb-4">Ask a Question</h4>
 
-    <div class="mb-3">
-        <label for="questionTitle" class="form-label">Question Title</label>
-        <input type="text" class="form-control" id="questionTitle" placeholder="Enter your question title">
-        <div class="alert alert-danger small mt-2" role="alert">
-            Title must be between 10 and 100 characters.
-        </div>
-    </div>
+    <form method="post" novalidate>
+      {% csrf_token %}
 
-    <div class="mb-3">
-        <label for="questionText" class="form-label">Question Text</label>
-        <textarea class="form-control" id="questionText" rows="8" placeholder="Describe your question in detail..."
-            style="resize: none; overflow-y: auto;"></textarea>
-        <div class="alert alert-danger small mt-2" role="alert">
-            Text must be less than 3000 characters.
-        </div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Question Title</label>
+        {{ form.title }}
+        {% if form.title.errors %}
+          <div class="alert alert-danger small mt-2">{{ form.title.errors.0 }}</div>
+        {% endif %}
+      </div>
 
-    <div class="mb-3">
-        <label for="questionTags" class="form-label">Tags</label>
-        <input type="text" class="form-control" id="questionTags" placeholder="Enter tags separated by commas">
+      <div class="mb-3">
+        <label class="form-label">Question Text</label>
+        {{ form.text }}
+        {% if form.text.errors %}
+          <div class="alert alert-danger small mt-2">{{ form.text.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Tags</label>
+        {{ form.tags }}
         <div class="form-text">Add relevant tags to help others find your question.</div>
-    </div>
+      </div>
 
-    <button class="btn btn-primary">Post Question</button>
-</div>
-
-{% endblock content %}
+      <button class="btn btn-primary">Post Question</button>
+    </form>
+  </div>
+{% endblock %}
