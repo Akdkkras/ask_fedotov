@@ -30,7 +30,7 @@ class QuestionManager(models.Manager):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # avatar = models.ImageField(blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -39,31 +39,37 @@ class Profile(models.Model):
 class Question(models.Model):
     title = models.CharField(max_length=100)
     text = models.TextField()
-    user = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name='questions', null=True)
+    user = models.ForeignKey(
+        Profile, on_delete=models.PROTECT, related_name='questions', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField('Tag', related_name='questions')
-    likes = models.ManyToManyField(Profile, related_name='question_likes', through='QuestionLike')
+    likes = models.ManyToManyField(
+        Profile, related_name='question_likes', through='QuestionLike')
 
     objects = models.Manager()
     qs = QuestionManager()
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=20, unique=True, default='value_default')
+    name = models.CharField(max_length=20, unique=True,
+                            default='value_default')
 
     def __str__(self):
         return self.name
-    
+
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='answers')
     text = models.TextField()
     is_correct = models.BooleanField(default=False)
-    user = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name='answers')
+    user = models.ForeignKey(
+        Profile, on_delete=models.PROTECT, related_name='answers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = models.ManyToManyField(Profile, related_name='answer_likes', through='AnswerLike')
+    likes = models.ManyToManyField(
+        Profile, related_name='answer_likes', through='AnswerLike')
 
 
 # Additional models
@@ -71,7 +77,7 @@ class Answer(models.Model):
 class QuestionLike(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    
+
     class Meta:
         unique_together = ['question', 'user']
 
@@ -79,6 +85,6 @@ class QuestionLike(models.Model):
 class AnswerLike(models.Model):
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    
+
     class Meta:
         unique_together = ['answer', 'user']
