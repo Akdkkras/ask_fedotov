@@ -1,9 +1,15 @@
-from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.db import transaction
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.urls import reverse
 
 from .models import Profile, Question, Answer, Tag, QuestionLike, AnswerLike
-from .forms import SignUpForm, LoginForm, AskForm
+from .forms import SignUpForm, LoginForm, AskForm, ProfileEditForm, AnswerForm
+from .utils import parse_tags
 
 
 def paginate(objects, request: HttpRequest, per_page=10):
@@ -18,8 +24,7 @@ def paginate(objects, request: HttpRequest, per_page=10):
 
 
 def index(request: HttpRequest):
-    # questions = Question.qs.order_by_new() # 33 sql-запроса
-    questions = Question.qs.order_by_new().prefetch_related(  # 6 sql-запросов
+    questions = Question.qs.order_by_new().prefetch_related(
         "tags",
         "answers",
         "likes",
@@ -27,7 +32,6 @@ def index(request: HttpRequest):
     page_obj = paginate(questions, request, 10)
     tags = Tag.objects.all()
     return render(request, "index.html", context={"tags_pool": tags, "page_obj": page_obj})
-    # return render(request, "test.html")
 
 
 def index_hot(request: HttpRequest):
@@ -53,6 +57,20 @@ def index_by_tag(request: HttpRequest, tag):
 
 
 def question_page(request: HttpRequest, id):
+    if request.method == "POST":
+        user = request.user
+        profile = get_object_or_404(Profile, user=user)
+
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            Question.objects.get(pk=id).answers.create(
+                user=profile,
+                text=form.cleaned_data["text"]
+            )
+            return HttpResponseRedirect(reverse("question_page", kwargs={"id": id}))
+    else:
+        form = AnswerForm()
+
     question = Question.objects.prefetch_related(
         "tags",
         "answers",
@@ -67,15 +85,30 @@ def question_page(request: HttpRequest, id):
     return render(
         request,
         "question.html",
-        context={"tags_pool": tags, "page_obj": page_obj, "question": question}
+        context={"tags_pool": tags, "page_obj": page_obj,
+                 "question": question, "form": form}
     )
 
 
 def login_page(request: HttpRequest):
+    next_url = request.GET.get("continue")
+
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            return HttpResponse("Done")
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                if next_url:
+                    return HttpResponseRedirect(next_url)
+                else:
+                    return HttpResponseRedirect(reverse("index"))
+            else:
+                form.add_error(None, "Invalid username or password.")
     else:
         form = LoginForm()
 
@@ -83,11 +116,33 @@ def login_page(request: HttpRequest):
     return render(request, "login.html", context={"tags_pool": tags, "form": form})
 
 
+def logout_view(request: HttpRequest):
+    if request.method == "POST":
+        logout(request)
+        next_url = request.POST.get("next")
+        if next_url:
+            return HttpResponseRedirect(next_url)
+    return HttpResponseRedirect(reverse("index"))
+
+
+@transaction.atomic
 def signup_page(request: HttpRequest):
     if request.method == "POST":
         form = SignUpForm(request.POST, request.FILES)
         if form.is_valid():
-            return HttpResponse("Done")
+            user = User.objects.create_user(
+                username=form.cleaned_data["username"],
+                email=form.cleaned_data["email"],
+                password=form.cleaned_data["password"]
+            )
+
+            Profile.objects.create(
+                user=user,
+                nickname=form.cleaned_data["nickname"],
+                avatar=form.cleaned_data.get("avatar")
+            )
+
+            return HttpResponseRedirect(reverse("index"))
     else:
         form = SignUpForm()
 
@@ -95,18 +150,54 @@ def signup_page(request: HttpRequest):
     return render(request, "signup.html", context={"tags_pool": tags, "form": form})
 
 
+@login_required
+def profile_edit(request: HttpRequest):
+    user = request.user
+    profile = get_object_or_404(Profile, user=user)
+
+    if request.method == "POST":
+        form = ProfileEditForm(request.POST, request.FILES, user=user)
+
+        if form.is_valid():
+            user.username = form.cleaned_data["username"]
+            user.email = form.cleaned_data["email"]
+
+            profile.nickname = form.cleaned_data["nickname"]
+            if form.cleaned_data["avatar"]:
+                profile.avatar = form.cleaned_data["avatar"]
+
+            user.save()
+            profile.save()
+            return HttpResponseRedirect(reverse('profile_edit'))
+    else:
+        form = ProfileEditForm(initial={
+            "username": user.username,
+            "email": user.email,
+            "nickname": profile.nickname,
+        }, user=user)
+
+    tags = Tag.objects.all()
+    return render(request, "profile_edit.html", context={"tags_pool": tags, "form": form})
+
+
+@login_required
 def ask_page(request: HttpRequest):
     if request.method == "POST":
         form = AskForm(request.POST)
         if form.is_valid():
-            return HttpResponse("Done")
+            profile = get_object_or_404(Profile, user=request.user)
+            tags = parse_tags(form.cleaned_data["tags"])
+
+            question = Question.objects.create(
+                user=profile,
+                title=form.cleaned_data["title"],
+                text=form.cleaned_data["text"],
+            )
+            question.tags.set(tags)
+
+            return HttpResponseRedirect(reverse("question_page", kwargs={"id": question.id}))
     else:
         form = AskForm()
 
     tags = Tag.objects.all()
     return render(request, "ask.html", context={"tags_pool": tags, "form": form})
-
-
-def settings_page(request: HttpRequest):
-    tags = Tag.objects.all()
-    return render(request, "settings.html", context={"tags_pool": tags})

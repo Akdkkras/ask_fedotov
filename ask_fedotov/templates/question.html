@@ -1,46 +1,58 @@
-{% extends "layout/base.html" %}
+{% extends 'layout/base.html' %}
 
-{% block title %} {{ block.super }} | Question {% endblock title %}
+{% block title %}
+  {{ block.super }} | Question
+{% endblock %}
 
 {% load static %}
 
 {% block content %}
-
-<div class="question-detail p-4 mb-4 border rounded shadow-sm bg-light">
+  <div class="question-detail p-4 mb-4 border rounded shadow-sm bg-light">
     <div class="d-flex align-items-start">
-        <img src="{% static "images/user.jpg" %}" alt="User" width="60" height="60" class="rounded-circle me-3">
-        <div class="flex-grow-1">
-            <h3 class="fw-bold mb-2">{{ question.title }}</h3>
-            <p class="text-muted mb-3">{{ question.text }}</p>
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    {% for tag in question.tags.all %}
-                    <a href="{% url "tag" tag %}"
-                        class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ tag }}</a>
-                    {% endfor %}
-                </div>
-                <div>
-                    <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes.count }}</button>
-                </div>
-            </div>
+      <img src="{% if question.user.avatar %}
+          {{ question.user.avatar.url }}
+        {% else %}
+          {% static 'images/user.jpg' %}
+        {% endif %}"
+        alt="User"
+        width="60"
+        height="60"
+        class="rounded-circle me-3" />
+      <div class="flex-grow-1">
+        <h3 class="fw-bold mb-2">{{ question.title }}</h3>
+        <p class="text-muted mb-3">{{ question.text }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            {% for tag in question.tags.all %}
+              <a href="{% url 'tag' tag %}" class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ tag }}</a>
+            {% endfor %}
+          </div>
+          <div>
+            <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes.count }}</button>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<div class="answer-form p-4 mb-4 border rounded bg-light">
-    <div class="d-flex align-items-stretch gap-2">
-        <textarea class="form-control flex-grow-1" rows="3" placeholder="Write your answer here..."
-            style="resize: none; overflow-y: auto;"></textarea>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="p-4 mb-4 border rounded bg-light">
+      <div class="d-flex align-items-stretch gap-2">
+        {{ form.text }}
         <button class="btn btn-outline-primary btn-lg">Post</button>
+      </div>
+      {% if form.text.errors %}
+        <div class="alert alert-danger small mt-3 mb-0">{{ form.text.errors.0 }}</div>
+      {% endif %}
     </div>
-</div>
+  </form>
 
-<h5 class="fw-bold mb-3">Answers ({{ question.answers.count }})</h5>
+  <h5 class="fw-bold mb-3">Answers ({{ question.answers.count }})</h5>
 
-{% for answer in page_obj.object_list %}
-{% include "components/answer_card.html" %}
-{% endfor %}
+  {% for answer in page_obj.object_list %}
+    {% include 'components/answer_card.html' %}
+  {% endfor %}
 
-{% include "components/pagination.html" %}
-
-{% endblock content %}
+  {% include 'components/pagination.html' %}
+{% endblock %}

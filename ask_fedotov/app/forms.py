@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 
 
 class SignUpForm(forms.Form):
@@ -52,11 +53,11 @@ class SignUpForm(forms.Form):
         return data
 
 
-# TODO: implement email login
+# TODO: implement email login (take into account the uniqueness when updating the field)
 class LoginForm(forms.Form):
     username = forms.CharField(
         min_length=3,
-        max_length=3,
+        max_length=20,
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "Enter your username"
@@ -69,6 +70,48 @@ class LoginForm(forms.Form):
             "placeholder": "Enter your password"
         })
     )
+
+
+class ProfileEditForm(forms.Form):
+    username = forms.CharField(
+        min_length=3,
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter new username"
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter new email"
+        })
+    )
+    nickname = forms.CharField(
+        min_length=3,
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter new nickname"
+        })
+    )
+    avatar = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={
+            "class": "form-control",
+            "accept": "image/*"
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exclude(pk=self.user.pk).exists():
+            self.add_error('username', "This username is already occupied.")
+        return username
 
 
 class AskForm(forms.Form):
@@ -94,6 +137,18 @@ class AskForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Введите теги через запятую'
+            'placeholder': 'Enter the tags separated by commas'
+        })
+    )
+
+
+class AnswerForm(forms.Form):
+    text = forms.CharField(
+        max_length=3000,
+        widget=forms.Textarea(attrs={
+            "class": "form-control flex-grow-1",
+            "placeholder": "Write your answer here...",
+            "rows": 3,
+            "style": "resize: none; overflow-y: auto;"
         })
     )
