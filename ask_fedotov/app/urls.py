@@ -11,6 +11,7 @@ urlpatterns = [
     path("question/<int:id>", views.question_page, name="question_page"),
     path("question/<int:id>/like", views.question_like, name="question_like"),
     path("question/<int:id>/dislike", views.question_dislike, name="question_dislike"),
+    path("answer/<int:id>/verify", views.answer_verify, name="answer_verify"),
     path("login", views.login_page, name="login_page"),
     path("logout", views.logout_view, name="logout"),
     path("signup", views.signup_page, name="signup_page"),

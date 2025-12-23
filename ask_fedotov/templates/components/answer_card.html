@@ -1,9 +1,7 @@
 {% load static %}
 
 <div class="answer-card p-3 mb-3 border rounded bg-white position-relative">
-  {% if answer.is_verified %}
-    <span class="position-absolute top-0 end-0 translate-middle-y badge bg-success" style="transform: translate(-20%, 50%);">✓ Verified</span>
-  {% endif %}
+  <span class="position-absolute top-0 end-0 translate-middle-y badge bg-success {% if not answer.is_correct %}d-none{% endif %}" style="transform: translate(-20%, 50%);">✓ Verified</span>
   <div class="d-flex align-items-start">
     <img src="{% if answer.user.avatar %}
         {{ answer.user.avatar.url }}
@@ -16,7 +14,12 @@
       class="rounded-circle me-3" />
     <div class="flex-grow-1">
       <p class="mb-2">{{ answer.text }}</p>
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-end align-items-center gap-2">
+        {% comment %}TODO: user.user - bad naming{% endcomment %}
+        {% if request.user == answer.question.user.user %}
+          <button class="btn btn-outline-success btn-sm {% if answer.is_correct %}active{% endif %} js-action" data-action="verify" data-answer-id="{{ answer.id }}">✓</button>
+        {% endif %}
+
         <button class="btn btn-outline-primary btn-sm">👍 {{ answer.likes.count }}</button>
       </div>
     </div>

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.urls import reverse
 
@@ -263,4 +263,21 @@ def question_dislike(request: HttpRequest, id: int):
         'disliked': disliked,
         'dislikes_count': dislikes_count,
         'likes_count': likes_count,
+    })
+
+
+@login_required
+@require_POST
+def answer_verify(request: HttpRequest, id: int):
+    answer = get_object_or_404(Answer, pk=id)
+    profile = request.user.profile
+
+    if (answer.question.user != profile):
+        return HttpResponseForbidden("You cannot verify this answer.")
+
+    answer.is_correct = not answer.is_correct
+    answer.save()
+
+    return JsonResponse({
+        'verified': answer.is_correct,
     })
