@@ -47,6 +47,8 @@ class Question(models.Model):
     tags = models.ManyToManyField('Tag', related_name='questions')
     likes = models.ManyToManyField(
         Profile, related_name='question_likes', through='QuestionLike')
+    dislikes = models.ManyToManyField(
+        Profile, related_name='question_dislikes', through='QuestionDislike')
 
     objects = models.Manager()
     qs = QuestionManager()
@@ -76,6 +78,14 @@ class Answer(models.Model):
 # Additional models
 
 class QuestionLike(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ['question', 'user']
+
+
+class QuestionDislike(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
 

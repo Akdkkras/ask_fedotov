@@ -22,7 +22,24 @@
         </div>
         <div class="d-flex align-items-center gap-3">
           <a href="{% url 'question_page' question.id %}" class="text-decoration-none">{{ question.answers.count }} answers</a>
-          <button class="btn btn-outline-primary btn-sm">👍 {{ question.likes.count }}</button>
+          <div>
+            <button class="btn btn-sm js-like-btn {% if request.user.is_authenticated and request.user.profile in question.likes.all %}
+                btn-primary
+              {% else %}
+                btn-outline-primary
+              {% endif %}"
+              data-question-id="{{ question.id }}">
+              👍 <span class="js-like-count">{{ question.likes.count }}</span>
+            </button>
+            <button class="btn btn-sm js-dislike-btn {% if request.user.is_authenticated and request.user.profile in question.dislikes.all %}
+                btn-primary
+              {% else %}
+                btn-outline-primary
+              {% endif %}"
+              data-question-id="{{ question.id }}">
+              👎 <span class="js-dislike-count">{{ question.dislikes.count }}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

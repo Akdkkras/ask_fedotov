@@ -3,11 +3,12 @@ from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.views.decorators.http import require_POST
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.urls import reverse
 
-from .models import Profile, Question, Answer, Tag, QuestionLike, AnswerLike
+from .models import Profile, Question, Answer, Tag, QuestionLike, QuestionDislike, AnswerLike
 from .forms import SignUpForm, LoginForm, AskForm, ProfileEditForm, AnswerForm
 from .utils import parse_tags
 
@@ -201,3 +202,65 @@ def ask_page(request: HttpRequest):
 
     tags = Tag.objects.all()
     return render(request, "ask.html", context={"tags_pool": tags, "form": form})
+
+
+@login_required
+@require_POST
+def question_like(request: HttpRequest, id: int):
+    question = get_object_or_404(Question, pk=id)
+    profile = request.user.profile
+
+    like, created = QuestionLike.objects.get_or_create(
+        question=question,
+        user=profile
+    )
+
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        QuestionDislike.objects.filter(
+            question=question,
+            user=profile
+        ).delete()
+        liked = True
+
+    likes_count = question.likes.count()
+    dislikes_count = question.dislikes.count()
+
+    return JsonResponse({
+        'liked': liked,
+        'likes_count': likes_count,
+        'dislikes_count': dislikes_count,
+    })
+
+
+@login_required
+@require_POST
+def question_dislike(request: HttpRequest, id: int):
+    question = get_object_or_404(Question, pk=id)
+    profile = request.user.profile
+
+    dislike, created = QuestionDislike.objects.get_or_create(
+        question=question,
+        user=profile
+    )
+
+    if not created:
+        dislike.delete()
+        disliked = False
+    else:
+        QuestionLike.objects.filter(
+            question=question,
+            user=profile
+        ).delete()
+        disliked = True
+
+    likes_count = question.likes.count()
+    dislikes_count = question.dislikes.count()
+
+    return JsonResponse({
+        'disliked': disliked,
+        'dislikes_count': dislikes_count,
+        'likes_count': likes_count,
+    })
